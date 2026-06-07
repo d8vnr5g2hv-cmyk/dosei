@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>ふたりじゅんび</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=M+PLUS+Rounded+1c:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#1b2a4a;
+  --navy-deep:#13203a;
+  --navy-soft:#2f4068;
+  --accent:#e8b04b;       /* やわらかいゴールド */
+  --accent-2:#7fa8d4;     /* 空色アクセント */
+  --pink:#e8889b;
+  --bg:#f7f8fb;
+  --card:#ffffff;
+  --ink:#1b2a4a;
+  --ink-soft:#5a6b8a;
+  --line:#e7ebf2;
+  --good:#5cb88a;
+  --shadow:0 8px 28px rgba(27,42,74,.10);
+  --shadow-sm:0 3px 12px rgba(27,42,74,.07);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:'M PLUS Rounded 1c',sans-serif;
+  background:var(--bg);
+  color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+  overscroll-behavior-y:none;
+}
+.display{font-family:'Zen Maru Gothic',sans-serif;}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;}
+input,select,textarea{font-family:inherit;font-size:16px;}
+
+/* ---------- レイアウト ---------- */
+#app{max-width:560px;margin:0 auto;min-height:100vh;padding-bottom:84px;position:relative;}
+
+/* ---------- ヘッダー ---------- */
+.topbar{
+  background:linear-gradient(135deg,var(--navy) 0%,var(--navy-soft) 100%);
+  color:#fff;padding:14px 18px 16px;
+  border-radius:0 0 24px 24px;
+  position:relative;overflow:hidden;
+}
+.topbar::after{content:"";position:absolute;right:-40px;top:-40px;width:140px;height:140px;
+  background:radial-gradient(circle,rgba(232,176,75,.25),transparent 70%);border-radius:50%;}
+.topbar-row{display:flex;align-items:center;justify-content:space-between;gap:10px;position:relative;z-index:1;}
+.app-title{font-size:18px;font-weight:900;letter-spacing:.04em;}
+.app-title small{display:block;font-size:10px;opacity:.7;font-weight:500;letter-spacing:.2em;margin-top:1px;}
+.whoami{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.13);padding:5px 10px 5px 5px;border-radius:30px;}
+.whoami img,.whoami .ava-fallback{width:30px;height:30px;border-radius:50%;object-fit:cover;background:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--navy);font-size:14px;}
+.whoami span{font-size:12px;font-weight:700;}
+
+.countdown{margin-top:14px;position:relative;z-index:1;display:flex;align-items:baseline;gap:8px;}
+.countdown .big{font-size:34px;font-weight:900;font-family:'Zen Maru Gothic';line-height:1;color:var(--accent);}
+.countdown .lbl{font-size:12px;opacity:.85;}
+.countdown .set-btn{margin-left:auto;font-size:11px;background:rgba(255,255,255,.16);padding:6px 12px;border-radius:20px;font-weight:700;}
+
+/* ---------- タブ本文 ---------- */
+.tabwrap{padding:16px 16px 0;}
+.section-title{font-family:'Zen Maru Gothic';font-weight:900;font-size:17px;margin:4px 2px 12px;display:flex;align-items:center;gap:8px;}
+.section-title .dot{width:8px;height:18px;border-radius:4px;background:var(--accent);display:inline-block;}
+
+.card{background:var(--card);border-radius:18px;padding:16px;box-shadow:var(--shadow-sm);margin-bottom:14px;}
+.card.flat{box-shadow:none;border:1px solid var(--line);}
+
+/* ---------- 下部タブバー ---------- */
+.tabbar{
+  position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+  width:100%;max-width:560px;
+  background:rgba(255,255,255,.92);backdrop-filter:blur(12px);
+  border-top:1px solid var(--line);
+  display:flex;justify-content:space-around;
+  padding:8px 4px calc(8px + env(safe-area-inset-bottom));
+  z-index:50;
+}
+.tabbtn{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;padding:3px 0;color:var(--ink-soft);font-size:9.5px;font-weight:700;transition:color .15s;}
+.tabbtn .ico{width:24px;height:24px;}
+.tabbtn.active{color:var(--navy);}
+.tabbtn.active .ico{transform:translateY(-1px);}
+.tabbtn.active .ico path,.tabbtn.active .ico circle,.tabbtn.active .ico rect{stroke:var(--navy);}
+
+/* ---------- 汎用パーツ ---------- */
+.row{display:flex;align-items:center;gap:10px;}
+.btn{background:var(--navy);color:#fff;font-weight:800;padding:11px 16px;border-radius:14px;font-size:14px;transition:transform .1s,opacity .15s;}
+.btn:active{transform:scale(.97);}
+.btn.ghost{background:var(--bg);color:var(--navy);border:1.5px solid var(--line);}
+.btn.gold{background:var(--accent);color:var(--navy);}
+.btn.sm{padding:7px 12px;font-size:12px;border-radius:11px;}
+.btn.block{width:100%;}
+.input{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:13px;background:#fbfcfe;transition:border .15s;}
+.input:focus{outline:none;border-color:var(--accent-2);}
+.field-label{font-size:11px;font-weight:700;color:var(--ink-soft);margin:0 0 5px 3px;}
+
+.pill{font-size:10px;font-weight:800;padding:3px 9px;border-radius:20px;background:var(--bg);color:var(--ink-soft);}
+.pill.a{background:#e8f0fb;color:#3a6db5;}
+.pill.b{background:#fce8ee;color:#c75878;}
+.pill.both{background:#fdf3dd;color:#b07d1c;}
+
+.checkitem{display:flex;align-items:center;gap:12px;padding:12px 4px;border-bottom:1px solid var(--line);}
+.checkitem:last-child{border-bottom:none;}
+.cbox{width:24px;height:24px;border-radius:8px;border:2px solid var(--line);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.cbox.on{background:var(--good);border-color:var(--good);}
+.cbox.on svg{display:block;}
+.cbox svg{display:none;width:14px;height:14px;}
+.ci-main{flex:1;min-width:0;}
+.ci-title{font-weight:700;font-size:14px;}
+.ci-title.done{text-decoration:line-through;color:var(--ink-soft);opacity:.6;}
+.ci-meta{display:flex;align-items:center;gap:6px;margin-top:3px;flex-wrap:wrap;}
+.ci-meta .mini{font-size:10px;color:var(--ink-soft);}
+.del{color:#c9ccd6;font-size:18px;padding:4px 6px;flex-shrink:0;}
+
+.progress{height:10px;background:var(--bg);border-radius:10px;overflow:hidden;}
+.progress > i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));border-radius:10px;transition:width .5s cubic-bezier(.3,1.2,.5,1);}
+
+.empty{text-align:center;color:var(--ink-soft);font-size:13px;padding:24px 10px;opacity:.7;}
+
+.ava-mini{width:22px;height:22px;border-radius:50%;object-fit:cover;flex-shrink:0;background:var(--accent-2);display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;}
+
+/* ---------- モーダル ---------- */
+.overlay{position:fixed;inset:0;background:rgba(19,32,58,.5);backdrop-filter:blur(3px);z-index:100;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
+.overlay.show{opacity:1;pointer-events:auto;}
+.sheet{background:#fff;width:100%;max-width:560px;border-radius:24px 24px 0 0;padding:22px 20px calc(22px + env(safe-area-inset-bottom));transform:translateY(100%);transition:transform .28s cubic-bezier(.2,.9,.3,1);max-height:88vh;overflow-y:auto;}
+.overlay.show .sheet{transform:translateY(0);}
+.sheet h3{font-family:'Zen Maru Gothic';font-size:17px;margin:0 0 16px;}
+.sheet .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.seg{display:flex;gap:6px;background:var(--bg);padding:5px;border-radius:14px;}
+.seg button{flex:1;padding:9px;border-radius:10px;font-size:12px;font-weight:700;color:var(--ink-soft);}
+.seg button.on{background:#fff;color:var(--navy);box-shadow:var(--shadow-sm);}
+
+/* ---------- ゲーム / 育成キャラ ---------- */
+.pet-card{background:linear-gradient(160deg,#f0f4fb,#e6edf8);border-radius:20px;padding:18px;text-align:center;position:relative;overflow:hidden;}
+.pet-stage{display:flex;justify-content:space-around;align-items:flex-end;gap:8px;margin-top:6px;}
+.pet-slot{flex:1;}
+.pet-art{width:96px;height:96px;margin:0 auto;filter:drop-shadow(0 6px 10px rgba(27,42,74,.15));animation:bob 3s ease-in-out infinite;}
+.pet-slot.partner .pet-art{animation-delay:1.5s;}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+.pet-name{font-weight:800;font-size:13px;margin-top:6px;}
+.pet-lv{font-size:11px;color:var(--ink-soft);font-weight:700;}
+.pet-exp{height:7px;background:rgba(27,42,74,.1);border-radius:8px;overflow:hidden;margin-top:6px;}
+.pet-exp>i{display:block;height:100%;background:var(--accent);border-radius:8px;transition:width .5s;}
+.stage-badge{display:inline-block;font-size:9px;font-weight:800;background:var(--navy);color:#fff;padding:2px 8px;border-radius:20px;margin-top:5px;}
+
+/* キャラ選択 */
+.choose-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.choose-card{border:2px solid var(--line);border-radius:16px;padding:12px 6px;text-align:center;transition:all .15s;background:#fff;}
+.choose-card.sel{border-color:var(--accent);background:#fffaf0;transform:translateY(-2px);box-shadow:var(--shadow-sm);}
+.choose-card svg{width:60px;height:60px;}
+.choose-card .cn{font-size:11px;font-weight:800;margin-top:4px;}
+
+/* 起動 / 名前選択 */
+.gate{position:fixed;inset:0;z-index:200;background:linear-gradient(160deg,var(--navy),var(--navy-deep));color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px;text-align:center;}
+.gate h1{font-family:'Zen Maru Gothic';font-size:26px;margin:0 0 4px;}
+.gate p{opacity:.7;font-size:13px;margin:0 0 28px;}
+.gate .pick{display:flex;gap:14px;width:100%;max-width:340px;}
+.gate .pick button{flex:1;background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.2);border-radius:18px;padding:22px 10px;color:#fff;font-weight:800;font-size:15px;transition:all .15s;}
+.gate .pick button:active{transform:scale(.96);background:rgba(232,176,75,.25);}
+.gate .ava-big{width:54px;height:54px;border-radius:50%;margin:0 auto 8px;background:var(--accent);object-fit:cover;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:var(--navy);}
+
+.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--navy);color:#fff;padding:12px 20px;border-radius:30px;font-weight:700;font-size:13px;box-shadow:var(--shadow);z-index:300;opacity:0;pointer-events:none;transition:all .3s;display:flex;align-items:center;gap:8px;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+.fab{position:fixed;bottom:96px;right:calc(50% - 280px + 16px);width:56px;height:56px;border-radius:18px;background:var(--accent);color:var(--navy);font-size:30px;font-weight:300;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 20px rgba(232,176,75,.45);z-index:40;transition:transform .12s;}
+.fab:active{transform:scale(.92);}
+@media(max-width:560px){.fab{right:16px;}}
+
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.stat{background:var(--card);border-radius:16px;padding:14px;box-shadow:var(--shadow-sm);}
+.stat .num{font-family:'Zen Maru Gothic';font-size:24px;font-weight:900;color:var(--navy);line-height:1;}
+.stat .cap{font-size:10px;color:var(--ink-soft);font-weight:700;margin-top:4px;}
+.stat .num small{font-size:13px;}
+
+.banner{background:linear-gradient(135deg,var(--accent),#f0c468);border-radius:18px;padding:14px 16px;color:var(--navy);display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+.banner .em{font-size:26px;}
+.banner b{font-size:15px;font-family:'Zen Maru Gothic';}
+.banner div{font-size:11px;opacity:.8;}
+
+.daily{background:#fff;border:1.5px dashed var(--accent);border-radius:16px;padding:14px;margin-bottom:14px;}
+.daily-item{display:flex;align-items:center;gap:10px;padding:7px 0;font-size:13px;font-weight:700;}
+.daily-item .chk{width:20px;height:20px;border-radius:6px;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;}
+.daily-item.done .chk{background:var(--good);border-color:var(--good);}
+.daily-item.done .chk svg{display:block;}
+.daily-item .chk svg{display:none;width:11px;height:11px;}
+.daily-item.done span{color:var(--ink-soft);text-decoration:line-through;}
+
+.anniv-item{display:flex;align-items:center;justify-content:space-between;padding:12px 4px;border-bottom:1px solid var(--line);}
+.anniv-item:last-child{border-bottom:none;}
+.anniv-d{font-family:'Zen Maru Gothic';font-weight:900;font-size:18px;color:var(--accent);}
+.anniv-d small{font-size:11px;color:var(--ink-soft);font-weight:600;}
+
+.sync-dot{width:7px;height:7px;border-radius:50%;background:var(--good);display:inline-block;margin-right:5px;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.offline .sync-dot{background:#d76b6b;animation:none;}
+
+.cfg-warn{background:#fff4e5;border:1px solid #f0c468;border-radius:14px;padding:12px 14px;font-size:12px;color:#8a5a00;margin:16px;line-height:1.6;}
+
+/* ---------- ガチャ演出 ---------- */
+.gacha-stage{width:200px;height:200px;margin:10px auto 6px;display:flex;align-items:center;justify-content:center;position:relative;border-radius:50%;transition:box-shadow .3s;}
+.gacha-stage.flash{box-shadow:0 0 60px 10px rgba(127,168,212,.6);}
+.gacha-stage.flash5{box-shadow:0 0 80px 20px rgba(232,176,75,.8);animation:rainbowGlow 1.2s ease;}
+@keyframes rainbowGlow{0%{box-shadow:0 0 40px 10px rgba(232,176,75,.6)}50%{box-shadow:0 0 100px 30px rgba(232,136,155,.9)}100%{box-shadow:0 0 80px 20px rgba(127,168,212,.8)}}
+.gacha-orb{font-size:80px;line-height:1;transition:transform .3s;}
+.gacha-orb.shake{animation:shake .15s linear infinite;}
+@keyframes shake{0%,100%{transform:translate(0,0) rotate(0)}25%{transform:translate(-4px,2px) rotate(-6deg)}75%{transform:translate(4px,-2px) rotate(6deg)}}
+.gacha-orb.pop{animation:pop .5s cubic-bezier(.2,1.5,.4,1);}
+@keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.4)}100%{transform:scale(0)}}
+.gacha-orb.reveal{animation:reveal .5s cubic-bezier(.2,1.4,.4,1);}
+.gacha-orb.reveal.rare5{filter:drop-shadow(0 0 16px rgba(232,176,75,.8));}
+@keyframes reveal{0%{transform:scale(0) rotate(-30deg);opacity:0}100%{transform:scale(1) rotate(0);opacity:1}}
+.g-rarity{font-size:20px;font-weight:900;font-family:'Zen Maru Gothic';margin-top:6px;letter-spacing:.05em;}
+.g-name{font-size:14px;font-weight:700;color:#fff;margin-top:2px;}
+.evolve-art{width:150px;height:150px;margin:8px auto 0;display:flex;align-items:center;justify-content:center;filter:drop-shadow(0 0 20px rgba(232,176,75,.7));animation:reveal .6s cubic-bezier(.2,1.4,.4,1);}
+</style>
+</head>
+<body>
+
+<!-- 起動ゲート：名前選択 -->
+<div class="gate" id="gate">
+  <div id="gateBody"></div>
+</div>
+
+<div id="app" style="display:none">
+  <!-- ヘッダー -->
+  <div class="topbar">
+    <div class="topbar-row">
+      <div class="app-title display">ふたりじゅんび<small>FUTARI JUNBI</small></div>
+      <button class="whoami" id="whoamiBtn"></button>
+    </div>
+    <div class="countdown" id="countdown"></div>
+  </div>
+
+  <div class="tabwrap" id="view"></div>
+</div>
+
+<!-- タブバー -->
+<div class="tabbar" id="tabbar" style="display:none"></div>
+
+<!-- FAB -->
+<button class="fab" id="fab" style="display:none">＋</button>
+
+<!-- モーダル -->
+<div class="overlay" id="overlay"><div class="sheet" id="sheet"></div></div>
+
+<!-- トースト -->
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* =========================================================
+   ▼▼▼ ここだけ書き換える（2か所）▼▼▼
+   Supabase → Project Settings → API でコピーできる
+   ※ iPhoneのクォート変換に注意。' は触らず中身だけ差し替え
+========================================================= */
+const SUPABASE_URL = "https://rgkcwmmvjropvccuvitd.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJna2N3bW12anJvcHZjY3V2aXRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4MDg5NjEsImV4cCI6MjA5NjM4NDk2MX0.V-N_DURg5yWv0_owAjigD2sga_aN9_X9NBcTR9_mm5c";
+/* ▲▲▲ ここまで ▲▲▲ */
+
+/* ============ 接続 ============ */
+let sb=null, ONLINE=false;
+const configured = SUPABASE_URL.startsWith("http") && SUPABASE_ANON_KEY.length>20;
+if(configured){ try{ sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); ONLINE=true; }catch(e){ ONLINE=false; } }
+
+/* ============ ローカルキャッシュ（オフライン/プレビュー用） ============ */
+const LS="futari_local_v1";
+function lsLoad(){ try{return JSON.parse(localStorage.getItem(LS))||{};}catch(e){return {};} }
+function lsSave(){ try{localStorage.setItem(LS,JSON.stringify(DB));}catch(e){} }
+
+/* ============ データ ============ */
+let DB = { state:{}, tasks:[], budget_items:[], wants:[], wishes:[], rules:[], anniversaries:[] };
+let ME = null; // 'a' | 'b'
+const TABLES=['tasks','budget_items','wants','wishes','rules','anniversaries'];
+
+/* ============ 育成キャラ定義（画像ベース） ============ */
+// ★5進化キャラ：猫犬=6段階、熊カワウソ狐=5段階。各段階に名前。
+// 画像は images/{type}_{stage}.png（stageは1始まり）。無ければSVGフォールバック。
+const EVO = {
+  cat:   { rarity:5, label:'ねこ',   stages:['子猫','月星猫','宇宙猫','銀河猫王','銀河猫帝','猫帝の銀河'] },
+  dog:   { rarity:5, label:'いぬ',   stages:['子犬','冒険犬','師匠犬','将軍犬','天使犬','大天使犬'] },
+  bear:  { rarity:5, label:'くま',   stages:['子熊','しろくま','炎結晶熊','炎鎧熊','炎帝の天界熊'] },
+  otter: { rarity:5, label:'カワウソ',stages:['子カワウソ','船乗りカワウソ','夢かわカワウソ','夢かわ姫','創世の夢かわ帝'] },
+  fox:   { rarity:5, label:'きつね', stages:['子狐','神使の狐','エレガント狐','妖艶な九尾候補','色香の九尾美人'] }
+};
+// ハズレ枠（進化なし）。miss_1..10
+const MISS = [
+  {id:1,r:1,name:'ねずみ'},{id:2,r:1,name:'ひよこ'},{id:3,r:1,name:'かえる'},{id:4,r:1,name:'さかな'},
+  {id:5,r:2,name:'すずめ'},{id:6,r:2,name:'かたつむり'},{id:7,r:2,name:'はりねずみ'},
+  {id:8,r:3,name:'あらいぐま'},{id:9,r:3,name:'りす'},{id:10,r:4,name:'ふくろう'}
+];
+
+// 進化に必要な累計EXP（前傾配分＝序盤サクサク）
+const CURVE6=[0,10,25,50,110,220];      // 6段階（猫・犬）
+const CURVE5=[0,10,25,55,140];          // 5段階（熊・カワウソ・狐）
+function curveOf(type){ return EVO[type].stages.length===6?CURVE6:CURVE5; }
+
+// 累計EXP→現在ステージ(0始まり)
+function stageOf(type,exp){
+  const c=curveOf(type); let s=0;
+  for(let i=0;i<c.length;i++){ if(exp>=c[i]) s=i; }
+  return s;
+}
+// 次ステージまでの進捗（0〜1）と残りEXP
+function evoProgress(type,exp){
+  const c=curveOf(type); const s=stageOf(type,exp);
+  if(s>=c.length-1) return {ratio:1,remain:0,max:true,stage:s};
+  const cur=c[s], next=c[s+1];
+  return {ratio:(exp-cur)/(next-cur), remain:next-exp, max:false, stage:s};
+}
+function stageName(type,exp){ return EVO[type].stages[stageOf(type,exp)]; }
+
+/* 画像パス（フォールバックでSVG文字列を返すこともある） */
+function petImgTag(type,stage,size){
+  // stageは1始まり
+  return `<img src="${type}_${stage}.png" width="${size}" alt=""
+    style="width:${size}px;height:${size}px;object-fit:contain"
+    onerror="this.onerror=null;this.outerHTML=petSVG('${type}',${Math.min(stage-1,2)},${size})">`;
+}
+function missImgTag(id,size){
+  return `<img src="miss_${id}.png" width="${size}" alt=""
+    style="width:${size}px;height:${size}px;object-fit:contain"
+    onerror="this.onerror=null;this.style.opacity=.3;this.alt='?'">`;
+}
+const RARITY_COLOR={1:'#9aa3b2',2:'#5cb88a',3:'#5b8fd4',4:'#b07de0',5:'#e8b04b'};
+function stars(r){ return '★'.repeat(r); }
+
+function petSVG(type,stage,size=96){
+  // 画像が未配置のときのフォールバック。種ごとの色のまるい子。
+  const COL={cat:'#8c84c4',dog:'#d6a25e',bear:'#9a7b5a',otter:'#a9876a',fox:'#e0875a'};
+  const c=COL[type]||'#9aa7c4';
+  const r=size/2;
+  return `<svg viewBox="0 0 100 100" width="${size}" height="${size}" style="vertical-align:middle">
+    <ellipse cx="50" cy="92" rx="26" ry="5" fill="rgba(0,0,0,.08)"/>
+    <ellipse cx="50" cy="68" rx="26" ry="22" fill="${c}"/>
+    <circle cx="50" cy="46" r="24" fill="${c}"/>
+    <circle cx="34" cy="30" r="8" fill="${c}"/><circle cx="66" cy="30" r="8" fill="${c}"/>
+    <circle cx="42" cy="46" r="3.6" fill="#2a2a3a"/><circle cx="58" cy="46" r="3.6" fill="#2a2a3a"/>
+    <circle cx="43.3" cy="44.7" r="1.2" fill="#fff"/><circle cx="59.3" cy="44.7" r="1.2" fill="#fff"/>
+    <ellipse cx="50" cy="54" rx="2.4" ry="1.8" fill="#2a2a3a"/>
+    <path d="M45 58 Q50 62 55 58" stroke="#2a2a3a" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+  </svg>`;
+}
+/* ============ ユーティリティ ============ */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const yen=n=>'¥'+Number(n||0).toLocaleString();
+function toast(msg,emoji='✨'){ const t=$('#toast'); t.innerHTML=`<span>${emoji}</span>${esc(msg)}`; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),2200); }
+function today(){ const d=new Date(); return d.toISOString().slice(0,10); }
+function daysUntil(dateStr){ if(!dateStr)return null; const d=new Date(dateStr+'T00:00:00'); const n=new Date(today()+'T00:00:00'); return Math.round((d-n)/86400000); }
+
+/* 名前/プロフィール（state内） */
+function names(){ return {a:DB.state.nameA||'ふたりめ A', b:DB.state.nameB||'ふたりめ B'}; }
+function avatarOf(who){ return who==='a'?DB.state.avaA : DB.state.avaB; }
+function avaHTML(who,cls='ava-mini'){ const img=avatarOf(who); const n=who==='a'?names().a:names().b; return img?`<img class="${cls}" src="${esc(img)}">`:`<span class="${cls}">${esc((n||'?').slice(0,1))}</span>`; }
+
+/* ============ データ読み込み ============ */
+async function loadAll(){
+  if(ONLINE){
+    try{
+      const st = await sb.from('app_state').select('data').eq('id',1).single();
+      DB.state = (st.data && st.data.data) || {};
+      for(const t of TABLES){
+        const r = await sb.from(t).select('*').order('created_at',{ascending:true});
+        DB[t] = r.data || [];
+      }
+      lsSave();
+    }catch(e){ console.warn('load fallback',e); DB = Object.assign(DB, lsLoad()); ONLINE=false; }
+  }else{
+    DB = Object.assign(DB, lsLoad());
+  }
+}
+
+async function saveState(){
+  lsSave();
+  if(ONLINE){ try{ await sb.from('app_state').update({data:DB.state,updated_at:new Date().toISOString()}).eq('id',1); }catch(e){} }
+}
+async function addRow(table,obj){
+  obj.created_at=new Date().toISOString();
+  if(ONLINE){
+    try{ const r=await sb.from(table).insert(obj).select().single(); DB[table].push(r.data); lsSave(); return r.data; }
+    catch(e){ console.warn(e); }
+  }
+  obj.id='loc_'+Date.now()+Math.random().toString(36).slice(2,6); DB[table].push(obj); lsSave(); return obj;
+}
+async function updRow(table,id,patch){
+  const row=DB[table].find(x=>String(x.id)===String(id)); if(row)Object.assign(row,patch); lsSave();
+  if(ONLINE){ try{ await sb.from(table).update(patch).eq('id',id); }catch(e){} }
+}
+async function delRow(table,id){
+  DB[table]=DB[table].filter(x=>String(x.id)!==String(id)); lsSave();
+  if(ONLINE){ try{ await sb.from(table).delete().eq('id',id); }catch(e){} }
+}
+
+function subscribeRealtime(){
+  if(!ONLINE) return;
+  try{
+    sb.channel('futari').on('postgres_changes',{event:'*',schema:'public'},async()=>{
+      await loadAll(); render();
+    }).subscribe();
+  }catch(e){}
+}
+
+/* ============ 育成キャラ EXP ============ */
+async function gainExp(amount,reason){
+  if(!ME) return;
+  const key = ME==='a'?'petA':'petB';
+  const pet = DB.state[key]; if(!pet||!pet.type||EVO[pet.type]==null) return; // ハズレ確定キャラ等は育たない
+  const before = stageOf(pet.type, pet.exp||0);
+  pet.exp = (pet.exp||0)+amount;
+  const after = stageOf(pet.type, pet.exp);
+  await saveState();
+  if(after>before){ showEvolve(pet, after); }
+  else if(reason){ toast(`+${amount} EXP（${reason}）`,'⭐'); }
+}
+// 進化演出
+function showEvolve(pet,stageIdx){
+  const nm=stageName(pet.type,pet.exp);
+  openSheet(`<div style="text-align:center">
+    <div style="font-size:13px;font-weight:800;color:var(--accent);letter-spacing:.1em">EVOLVE!</div>
+    <div class="evolve-art">${petImgTag(pet.type,stageIdx+1,140)}</div>
+    <h3 style="margin:6px 0 2px">${esc(pet.nick||EVO[pet.type].label)} は<br>「${esc(nm)}」に しんかした！</h3>
+    <button class="btn block gold" style="margin-top:14px" onclick="closeSheet()">やったね</button>
+  </div>`);
+}
+
+function dailyState(){
+  const d=DB.state.daily||{}; if(d.date!==today()) return {date:today(),task:false,wish:false};
+  return d;
+}
+async function markDaily(k){
+  let d=dailyState();
+  if(d[k]) return; d[k]=true; d.date=today();
+  DB.state.daily=d; await saveState();
+  await gainExp(5,'デイリー');
+}
+async function checkDailyOpen(){
+  let d=dailyState();
+  if(!d.openedToday){ d.openedToday=true; d.date=today(); DB.state.daily=d; await saveState(); await gainExp(3,'ログイン'); }
+}
+
+/* =========================================================
+   起動ゲート
+========================================================= */
+let setupStep=0, tmpName='', tmpPet=null;
+
+function showGate(){ $('#gate').style.display='flex'; $('#app').style.display='none'; $('#tabbar').style.display='none'; $('#fab').style.display='none'; }
+function hideGate(){ $('#gate').style.display='none'; $('#app').style.display='block'; $('#tabbar').style.display='flex'; $('#fab').style.display='flex'; }
+
+function renderGate(){
+  const g=$('#gateBody');
+  const setupDone = DB.state.nameA && DB.state.nameB;
+  // 初回セットアップ：2人の名前を登録
+  if(!setupDone){
+    g.innerHTML=`
+      <h1 class="display">ふたりじゅんび</h1>
+      <p>はじめに、ふたりの名前を登録してね</p>
+      <div style="width:100%;max-width:340px;text-align:left">
+        <div class="field-label" style="color:rgba(255,255,255,.7)">ひとりめ</div>
+        <input class="input" id="su_a" placeholder="例：耀平" style="margin-bottom:14px;background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);color:#fff">
+        <div class="field-label" style="color:rgba(255,255,255,.7)">ふたりめ</div>
+        <input class="input" id="su_b" placeholder="例：おなまえ" style="margin-bottom:22px;background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);color:#fff">
+        <button class="btn gold block" onclick="doSetupNames()">つぎへ</button>
+      </div>`;
+    return;
+  }
+  // 名前選択
+  const n=names();
+  g.innerHTML=`
+    <h1 class="display">おかえり</h1>
+    <p>あなたはどっち？</p>
+    <div class="pick">
+      <button onclick="pickMe('a')">
+        ${avatarOf('a')?`<img class="ava-big" src="${esc(avatarOf('a'))}">`:`<div class="ava-big">${esc(n.a.slice(0,1))}</div>`}
+        ${esc(n.a)}
+      </button>
+      <button onclick="pickMe('b')">
+        ${avatarOf('b')?`<img class="ava-big" src="${esc(avatarOf('b'))}">`:`<div class="ava-big">${esc(n.b.slice(0,1))}</div>`}
+        ${esc(n.b)}
+      </button>
+    </div>`;
+}
+
+async function doSetupNames(){
+  const a=$('#su_a').value.trim(), b=$('#su_b').value.trim();
+  if(!a||!b){ toast('ふたり分の名前を入れてね','✍️'); return; }
+  DB.state.nameA=a; DB.state.nameB=b;
+  await saveState();
+  renderGate();
+}
+
+async function pickMe(who){
+  ME=who;
+  const key=who==='a'?'petA':'petB';
+  if(!DB.state[key] || !DB.state[key].confirmed){ // 相棒未確定 → ガチャへ
+    startGacha(who);
+    return;
+  }
+  enterApp();
+}
+
+/* ====== ガチャ ====== */
+let gachaResult=null;
+// 排出テーブル：★5(進化5種)を引きやすめに。引き直し前提＆相棒は1匹なので、テンポ優先で約25%。
+function rollGacha(){
+  const r=Math.random()*100;
+  if(r<25){ // ★5 進化キャラ：5種から均等
+    const types=Object.keys(EVO);
+    const t=types[Math.floor(Math.random()*types.length)];
+    return {kind:'evo',type:t,rarity:5};
+  }
+  // ハズレ：レア度重みづけ（★1多め）
+  const pool=[];
+  MISS.forEach(m=>{ const w=m.r===1?5:m.r===2?3:m.r===3?2:1; for(let i=0;i<w;i++)pool.push(m); });
+  const m=pool[Math.floor(Math.random()*pool.length)];
+  return {kind:'miss',missId:m.id,rarity:m.r,name:m.name};
+}
+
+function startGacha(who){
+  const g=$('#gateBody');
+  g.innerHTML=`
+    <h1 class="display">あいぼうガチャ</h1>
+    <p>ボタンを押して、運命の相棒を引こう！</p>
+    <div class="gacha-stage" id="gachaStage">
+      <div class="gacha-orb" id="gachaOrb">🥚</div>
+    </div>
+    <div id="gachaResult" style="min-height:40px"></div>
+    <button class="btn gold block" style="max-width:340px" id="gachaBtn" onclick="doRoll('${who}')">ガチャを引く</button>`;
+}
+
+async function doRoll(who){
+  const btn=$('#gachaBtn'); btn.disabled=true; btn.style.opacity=.5;
+  const orb=$('#gachaOrb'); const stage=$('#gachaStage');
+  gachaResult=rollGacha();
+  // 演出：震える→光る→開く
+  orb.className='gacha-orb shake';
+  await wait(700);
+  stage.classList.add(gachaResult.rarity>=5?'flash5':'flash');
+  orb.className='gacha-orb pop';
+  await wait(500);
+  // 結果表示
+  const res=$('#gachaResult');
+  if(gachaResult.kind==='evo'){
+    const t=gachaResult.type;
+    orb.outerHTML=`<div class="gacha-orb reveal rare5">${petImgTag(t,1,120)}</div>`;
+    res.innerHTML=`<div class="g-rarity" style="color:${RARITY_COLOR[5]}">${stars(5)} 大当たり！</div>
+      <div class="g-name">${esc(EVO[t].label)}（進化キャラ）</div>
+      <input class="input" id="gNick" placeholder="名前をつける（任意）" style="margin:10px auto 0;max-width:300px;background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.25);color:#fff">`;
+    btn.outerHTML=`<button class="btn gold block" style="max-width:340px" onclick="confirmGacha('${who}')">この子に決める！</button>`;
+  }else{
+    orb.outerHTML=`<div class="gacha-orb reveal">${missImgTag(gachaResult.missId,110)}</div>`;
+    res.innerHTML=`<div class="g-rarity" style="color:${RARITY_COLOR[gachaResult.rarity]}">${stars(gachaResult.rarity)}</div>
+      <div class="g-name">${esc(gachaResult.name)}</div>
+      <div style="font-size:12px;opacity:.7;margin-top:4px">この子は進化しないよ</div>`;
+    btn.outerHTML=`<div class="row" style="gap:10px;max-width:340px;width:100%">
+      <button class="btn ghost" style="flex:1;background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.3)" onclick="confirmGacha('${who}')">この子にする</button>
+      <button class="btn gold" style="flex:1" onclick="startGacha('${who}')">引き直す</button>
+    </div>`;
+  }
+}
+function wait(ms){ return new Promise(r=>setTimeout(r,ms)); }
+
+async function confirmGacha(who){
+  const key=who==='a'?'petA':'petB';
+  if(gachaResult.kind==='evo'){
+    const nick=($('#gNick')&&$('#gNick').value.trim())||'';
+    DB.state[key]={type:gachaResult.type,nick,exp:0,confirmed:true,rarity:5};
+  }else{
+    DB.state[key]={miss:gachaResult.missId,nick:'',exp:0,confirmed:true,rarity:gachaResult.rarity,name:gachaResult.name};
+  }
+  await saveState();
+  enterApp();
+}
+
+async function enterApp(){
+  hideGate();
+  await checkDailyOpen();
+  TAB='home';
+  render();
+  subscribeRealtime();
+}
+
+/* =========================================================
+   ブート
+========================================================= */
+let TAB='home';
+async function boot(){
+  await loadAll();
+  buildTabbar();
+  $('#whoamiBtn').onclick=openWhoami;
+  $('#fab').onclick=onFab;
+  $('#overlay').onclick=e=>{ if(e.target.id==='overlay') closeSheet(); };
+  showGate();
+  renderGate();
+}
+window.addEventListener('DOMContentLoaded',boot);
+
+/* =========================================================
+   タブバー
+========================================================= */
+const TABS=[
+  {id:'home',  label:'ホーム', icon:'M3 11l9-8 9 8M5 10v10h14V10'},
+  {id:'tasks', label:'やること', icon:'M9 11l3 3 7-7M5 5h11M5 12h4M5 19h9'},
+  {id:'budget',label:'よさん', icon:'M12 3v18M7 8h7a3 3 0 010 6H8M7 16h8'},
+  {id:'wants', label:'ほしい物', icon:'M6 6h15l-1.5 9h-12zM6 6L5 3H2M9 20a1 1 0 100-2 1 1 0 000 2zm9 0a1 1 0 100-2 1 1 0 000 2z'},
+  {id:'wish',  label:'やりたい', icon:'M12 21C7 17 3 13 3 8.5A4.5 4.5 0 0112 5a4.5 4.5 0 019 3.5C21 13 17 17 12 21z'},
+  {id:'rules', label:'ルール', icon:'M5 3h11l3 3v15H5zM9 8h6M9 12h6M9 16h4'},
+  {id:'anniv', label:'記念日', icon:'M5 5h14v15H5zM5 9h14M8 3v4M16 3v4'}
+];
+function buildTabbar(){
+  $('#tabbar').innerHTML=TABS.map(t=>`
+    <button class="tabbtn" data-tab="${t.id}" onclick="go('${t.id}')">
+      <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="${t.icon}"/></svg>
+      ${t.label}
+    </button>`).join('');
+}
+function go(tab){ TAB=tab; render(); window.scrollTo(0,0); }
+
+/* =========================================================
+   ヘッダー描画
+========================================================= */
+function renderHeader(){
+  const n=names();
+  const meName = ME==='a'?n.a:n.b;
+  $('#whoamiBtn').innerHTML = `${avaHTML(ME,'ava-fallback')}<span>${esc(meName)}</span>`;
+  const moveIn=DB.state.moveInDate;
+  const cd=$('#countdown');
+  if(moveIn){
+    const d=daysUntil(moveIn);
+    cd.innerHTML = d>=0
+      ? `<span class="big">${d}</span><span class="lbl">入居まで<br>あと${d}日</span><button class="set-btn" onclick="openMoveIn()">日付変更</button>`
+      : `<span class="big">${Math.abs(d)}</span><span class="lbl">入居から<br>${Math.abs(d)}日目</span><button class="set-btn" onclick="openMoveIn()">変更</button>`;
+  }else{
+    cd.innerHTML=`<span class="lbl">${ONLINE?'<span class="sync-dot"></span>ふたりで同期中':'📱 この端末で記録中'}</span><button class="set-btn" onclick="openMoveIn()">入居日を設定</button>`;
+  }
+}
+
+/* =========================================================
+   メイン描画
+========================================================= */
+function render(){
+  if(!ME) return;
+  renderHeader();
+  document.querySelectorAll('.tabbtn').forEach(b=>b.classList.toggle('active',b.dataset.tab===TAB));
+  const v=$('#view');
+  if(TAB==='home')   v.innerHTML=viewHome();
+  if(TAB==='tasks')  v.innerHTML=viewTasks();
+  if(TAB==='budget') v.innerHTML=viewBudget();
+  if(TAB==='wants')  v.innerHTML=viewWants();
+  if(TAB==='wish')   v.innerHTML=viewWish();
+  if(TAB==='rules')  v.innerHTML=viewRules();
+  if(TAB==='anniv')  v.innerHTML=viewAnniv();
+  $('#fab').style.display = (TAB==='home')?'none':'flex';
+}
+
+/* ---------- ホーム / ダッシュボード ---------- */
+function viewHome(){
+  const n=names();
+  const tasksDone=DB.tasks.filter(t=>t.done).length, tasksAll=DB.tasks.length;
+  const taskPct=tasksAll?Math.round(tasksDone/tasksAll*100):0;
+  const planned=DB.budget_items.reduce((s,x)=>s+Number(x.planned||0),0);
+  const actual=DB.budget_items.reduce((s,x)=>s+Number(x.actual||0),0);
+  const budgetPct=planned?Math.round(actual/planned*100):0;
+  const wishDone=DB.wishes.filter(w=>w.done).length;
+
+  // 育成キャラ
+  const petA=DB.state.petA, petB=DB.state.petB;
+  function petBlock(pet,who,label){
+    if(!pet||!pet.confirmed) return `<div class="pet-slot"><div class="pet-art" style="opacity:.3">${petSVG('cat',0,86)}</div><div class="pet-lv">${esc(label)}：ガチャ未実施</div></div>`;
+    const mine = (who===ME);
+    if(pet.miss){ // ハズレ確定キャラ（進化なし）
+      return `<div class="pet-slot ${mine?'':'partner'}">
+        <div class="pet-art">${missImgTag(pet.miss,86)}</div>
+        <div class="pet-name">${esc(pet.nick||pet.name||'あいぼう')}</div>
+        <div class="pet-lv" style="color:${RARITY_COLOR[pet.rarity]||'var(--ink-soft)'}">${stars(pet.rarity||1)}</div>
+      </div>`;
+    }
+    const s=stageOf(pet.type,pet.exp||0);
+    const prog=evoProgress(pet.type,pet.exp||0);
+    return `<div class="pet-slot ${mine?'':'partner'}">
+      <div class="pet-art">${petImgTag(pet.type,s+1,90)}</div>
+      <div class="pet-name">${esc(pet.nick||EVO[pet.type].label)}</div>
+      <div class="pet-lv">${esc(stageName(pet.type,pet.exp||0))}${prog.max?' ・ 最終形態!':''}</div>
+      <div class="pet-exp"><i style="width:${Math.round(prog.ratio*100)}%"></i></div>
+      ${prog.max?'':`<div style="font-size:9px;color:var(--ink-soft);margin-top:3px">次の進化まで ${prog.remain} EXP</div>`}
+    </div>`;
+  }
+
+  const d=dailyState();
+  const moveIn=DB.state.moveInDate, dleft=moveIn?daysUntil(moveIn):null;
+
+  return `
+    ${moveIn&&dleft>=0?`<div class="banner"><span class="em">🏠</span><div><b>入居まであと${dleft}日</b><div>ふたりの新生活まで、もうすぐ！</div></div></div>`:''}
+
+    <div class="pet-card">
+      <div style="font-size:12px;font-weight:800;color:var(--navy);margin-bottom:4px">ふたりの あいぼう</div>
+      <div class="pet-stage">
+        ${petBlock(petA,'a',n.a)}
+        ${petBlock(petB,'b',n.b)}
+      </div>
+      <div style="font-size:10px;color:var(--ink-soft);margin-top:10px">やることを進めると 経験値がたまって しんかするよ</div>
+    </div>
+
+    <div class="daily">
+      <div style="font-size:12px;font-weight:800;margin-bottom:4px">📅 きょうのミッション</div>
+      <div class="daily-item ${d.task?'done':''}"><span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5"><path d="M5 12l5 5 9-9"/></svg></span><span>やることを1つ完了する</span></div>
+      <div class="daily-item ${d.wish?'done':''}"><span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5"><path d="M5 12l5 5 9-9"/></svg></span><span>やりたいことを1つ追加する</span></div>
+    </div>
+
+    <div class="dash-grid">
+      <div class="stat"><div class="num">${taskPct}<small>%</small></div><div class="cap">やること進捗（${tasksDone}/${tasksAll}）</div></div>
+      <div class="stat"><div class="num">${budgetPct}<small>%</small></div><div class="cap">予算消化（${yen(actual)}）</div></div>
+      <div class="stat"><div class="num">${DB.wants.filter(w=>w.bought).length}<small>/${DB.wants.length}</small></div><div class="cap">ほしい物 購入</div></div>
+      <div class="stat"><div class="num">${wishDone}<small>/${DB.wishes.length}</small></div><div class="cap">やりたいこと達成</div></div>
+    </div>
+
+    <div class="card">
+      <div class="field-label">やること ぜんたい</div>
+      <div class="progress"><i style="width:${taskPct}%"></i></div>
+    </div>`;
+}
+
+/* ---------- やることチェックリスト ---------- */
+const CATS=['物件','契約','引越し','住所変更','手続き','その他'];
+function viewTasks(){
+  const cats={};
+  DB.tasks.forEach(t=>{ const c=t.category||'その他'; (cats[c]=cats[c]||[]).push(t); });
+  const order=[...CATS,...Object.keys(cats).filter(c=>!CATS.includes(c))];
+  let body='';
+  order.forEach(c=>{
+    if(!cats[c]) return;
+    body+=`<div class="section-title" style="font-size:14px;margin-top:8px"><span class="dot"></span>${esc(c)}</div><div class="card">`;
+    cats[c].forEach(t=>{
+      const d=daysUntil(t.due_date);
+      const due = t.due_date? `<span class="mini" style="color:${d!=null&&d<0&&!t.done?'#d76b6b':'var(--ink-soft)'}">📅 ${t.due_date}${d!=null&&d>=0&&!t.done?`（あと${d}日）`:''}</span>`:'';
+      body+=`<div class="checkitem">
+        <button class="cbox ${t.done?'on':''}" onclick="toggleTask('${t.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5"><path d="M5 12l5 5 9-9"/></svg></button>
+        <div class="ci-main">
+          <div class="ci-title ${t.done?'done':''}">${esc(t.title)}</div>
+          <div class="ci-meta">${assigneePill(t.assignee)}${due}</div>
+        </div>
+        <button class="del" onclick="delConfirm('tasks','${t.id}','${esc(t.title)}')">×</button>
+      </div>`;
+    });
+    body+='</div>';
+  });
+  if(!DB.tasks.length) body=`<div class="empty">右下の ＋ から<br>やることを追加しよう</div>`;
+  return `<div class="section-title"><span class="dot"></span>やることリスト</div>${body}`;
+}
+function assigneePill(a){
+  const n=names();
+  if(a==='a')return `<span class="pill a">${esc(n.a)}</span>`;
+  if(a==='b')return `<span class="pill b">${esc(n.b)}</span>`;
+  if(a==='both')return `<span class="pill both">ふたり</span>`;
+  return '';
+}
+async function toggleTask(id){
+  const t=DB.tasks.find(x=>String(x.id)===String(id)); if(!t)return;
+  const willDone=!t.done;
+  await updRow('tasks',id,{done:willDone});
+  if(willDone){ await gainExp(8,'やること達成'); await markDaily('task'); }
+  render();
+}
+
+/* ---------- 予算 ---------- */
+function viewBudget(){
+  const planned=DB.budget_items.reduce((s,x)=>s+Number(x.planned||0),0);
+  const actual=DB.budget_items.reduce((s,x)=>s+Number(x.actual||0),0);
+  const pct=planned?Math.round(actual/planned*100):0;
+  let rows=DB.budget_items.map(x=>{
+    const p=Number(x.planned||0),a=Number(x.actual||0);
+    const over=a>p&&p>0;
+    return `<div class="checkitem" style="display:block;cursor:pointer" onclick="openBudgetEdit('${x.id}')">
+      <div class="row" style="justify-content:space-between">
+        <div class="ci-title">${esc(x.name)}</div>
+        <div style="text-align:right">
+          <div style="font-weight:800;font-size:14px;color:${over?'#d76b6b':'var(--navy)'}">${yen(a)}</div>
+          <div class="mini" style="color:var(--ink-soft)">予定 ${yen(p)}</div>
+        </div>
+      </div>
+      <div class="progress" style="margin-top:8px;height:7px"><i style="width:${p?Math.min(100,a/p*100):0}%;${over?'background:#d76b6b':''}"></i></div>
+    </div>`;
+  }).join('');
+  if(!DB.budget_items.length) rows=`<div class="empty">敷金・礼金・家具家電など<br>＋ から項目を追加</div>`;
+  return `
+    <div class="section-title"><span class="dot"></span>初期費用・予算</div>
+    <div class="card" style="background:linear-gradient(135deg,var(--navy),var(--navy-soft));color:#fff">
+      <div style="display:flex;justify-content:space-between;align-items:flex-end">
+        <div><div style="font-size:11px;opacity:.7">使った合計</div><div class="display" style="font-size:28px;font-weight:900;color:var(--accent)">${yen(actual)}</div></div>
+        <div style="text-align:right"><div style="font-size:11px;opacity:.7">予算合計</div><div style="font-size:18px;font-weight:800">${yen(planned)}</div></div>
+      </div>
+      <div class="progress" style="margin-top:12px;background:rgba(255,255,255,.2)"><i style="width:${Math.min(100,pct)}%"></i></div>
+      <div style="font-size:11px;opacity:.8;margin-top:6px">消化率 ${pct}%${planned&&actual<=planned?` ・ 残り ${yen(planned-actual)}`:''}</div>
+    </div>
+    <div class="card">${rows}</div>`;
+}
+
+/* ---------- ほしい物 ---------- */
+function viewWants(){
+  let rows=DB.wants.map(w=>`
+    <div class="card flat" style="margin-bottom:10px">
+      <div class="row" style="justify-content:space-between">
+        <div class="ci-main">
+          <div class="ci-title ${w.bought?'done':''}">${esc(w.name)} ${w.agreed?'<span class="pill both">👍合意</span>':''}</div>
+          <div class="ci-meta">
+            ${w.price?`<span class="mini">${yen(w.price)}</span>`:''}
+            ${w.url?`<a href="${esc(w.url)}" target="_blank" class="mini" style="color:var(--accent-2)">🔗 リンク</a>`:''}
+            ${avaHTML(w.created_by)}
+          </div>
+        </div>
+        <button class="del" onclick="delConfirm('wants','${w.id}','${esc(w.name)}')">×</button>
+      </div>
+      <div class="row" style="gap:8px;margin-top:10px">
+        <button class="btn sm ${w.agreed?'gold':'ghost'}" style="flex:1" onclick="toggleWant('${w.id}','agreed')">${w.agreed?'✓ 合意ずみ':'2人で合意'}</button>
+        <button class="btn sm ${w.bought?'':'ghost'}" style="flex:1" onclick="toggleWant('${w.id}','bought')">${w.bought?'✓ 購入ずみ':'購入した'}</button>
+      </div>
+    </div>`).join('');
+  if(!DB.wants.length) rows=`<div class="empty">冷蔵庫・ソファなど<br>候補を出して2人で合意しよう</div>`;
+  return `<div class="section-title"><span class="dot"></span>ほしい物リスト</div>${rows}`;
+}
+async function toggleWant(id,key){
+  const w=DB.wants.find(x=>String(x.id)===String(id)); if(!w)return;
+  const v=!w[key]; await updRow('wants',id,{[key]:v});
+  if(v&&key==='bought')await gainExp(6,'お買い物');
+  render();
+}
+
+/* ---------- ウィッシュ（やりたいこと） ---------- */
+function viewWish(){
+  const todo=DB.wishes.filter(w=>!w.done), done=DB.wishes.filter(w=>w.done);
+  function item(w){return `<div class="checkitem">
+    <button class="cbox ${w.done?'on':''}" onclick="toggleWish('${w.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5"><path d="M5 12l5 5 9-9"/></svg></button>
+    <div class="ci-main"><div class="ci-title ${w.done?'done':''}">${esc(w.title)}</div><div class="ci-meta">${avaHTML(w.created_by)}</div></div>
+    <button class="del" onclick="delConfirm('wishes','${w.id}','${esc(w.title)}')">×</button></div>`;}
+  let body='';
+  if(todo.length) body+=`<div class="card">${todo.map(item).join('')}</div>`;
+  if(done.length) body+=`<div class="field-label" style="margin-top:6px">達成ずみ 🎉</div><div class="card">${done.map(item).join('')}</div>`;
+  if(!DB.wishes.length) body=`<div class="empty">行きたい店・観たい映画・旅行…<br>2人でやりたいことを貯めよう</div>`;
+  return `<div class="section-title"><span class="dot"></span>ふたりのやりたいこと</div>${body}`;
+}
+async function toggleWish(id){
+  const w=DB.wishes.find(x=>String(x.id)===String(id));if(!w)return;
+  const v=!w.done;await updRow('wishes',id,{done:v});
+  if(v)await gainExp(6,'やりたい達成');
+  render();
+}
+
+/* ---------- ルール ---------- */
+function viewRules(){
+  let rows=DB.rules.map(r=>`<div class="checkitem">
+    <div class="ci-main"><div class="ci-title">📌 ${esc(r.text)}</div><div class="ci-meta">${avaHTML(r.created_by)}</div></div>
+    <button class="del" onclick="delConfirm('rules','${r.id}','ルール')">×</button></div>`).join('');
+  if(!DB.rules.length) rows=`<div class="empty">「ゴミ出しは交代」みたいな<br>ふたりのルールを思いついたら追加</div>`;
+  return `<div class="section-title"><span class="dot"></span>ふたりのルール</div><div class="card">${rows}</div>`;
+}
+
+/* ---------- 記念日 ---------- */
+function daysSince(dateStr){ if(!dateStr)return null; const d=new Date(dateStr+'T00:00:00'); const n=new Date(today()+'T00:00:00'); return Math.round((n-d)/86400000); }
+function viewAnniv(){
+  const list=DB.anniversaries.map(a=>{
+    if(a.mode==='countup'){ // 経過日数（付き合って○日目）
+      const since=daysSince(a.date);
+      return {...a,_mode:'up',_val:since};
+    }
+    // カウントダウン（次回まで）
+    let next=a.date;
+    if(a.recurring){
+      const t=new Date(today()+'T00:00:00'); const src=new Date(a.date+'T00:00:00');
+      let cand=new Date(t.getFullYear(),src.getMonth(),src.getDate());
+      if(cand<t) cand=new Date(t.getFullYear()+1,src.getMonth(),src.getDate());
+      next=cand.toISOString().slice(0,10);
+    }
+    return {...a,_mode:'down',_next:next,_d:daysUntil(next)};
+  }).sort((x,y)=>{
+    // カウントアップは上に、その後カウントダウンを近い順
+    if(x._mode!==y._mode) return x._mode==='up'?-1:1;
+    return x._mode==='up' ? (y._val-x._val) : (x._d-y._d);
+  });
+  let rows=list.map(a=>{
+    const right = a._mode==='up'
+      ? `<div class="anniv-d" style="color:var(--pink)">${a._val>=0?a._val:'—'}<small>日目</small></div>`
+      : `<div class="anniv-d">${a._d===0?'今日!':'あと'+a._d}<small>${a._d===0?'':'日'}</small></div>`;
+    const sub = a._mode==='up' ? `${a.date} から` : `${a.date}${a.recurring?' ・ 毎年':''}`;
+    return `<div class="anniv-item">
+      <div><div style="font-weight:800;font-size:14px">${a._mode==='up'?'💞 ':''}${esc(a.label)}</div><div class="mini" style="color:var(--ink-soft)">${sub}</div></div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="text-align:right">${right}</div>
+        <button class="del" onclick="delConfirm('anniversaries','${a.id}','${esc(a.label)}')">×</button>
+      </div></div>`;
+  }).join('');
+  if(!list.length) rows=`<div class="empty">付き合った日・誕生日など<br>大切な日を登録しよう</div>`;
+  return `<div class="section-title"><span class="dot"></span>記念日カウンター</div><div class="card">${rows}</div>`;
+}
+
+/* =========================================================
+   モーダル共通
+========================================================= */
+function openSheet(html){ $('#sheet').innerHTML=html; $('#overlay').classList.add('show'); }
+function closeSheet(){ $('#overlay').classList.remove('show'); }
+
+/* FAB：タブごとの追加フォーム */
+function onFab(){
+  if(TAB==='tasks') openTaskAdd();
+  else if(TAB==='budget') openBudgetAdd();
+  else if(TAB==='wants') openWantAdd();
+  else if(TAB==='wish') openWishAdd();
+  else if(TAB==='rules') openRuleAdd();
+  else if(TAB==='anniv') openAnnivAdd();
+}
+
+function openTaskAdd(){
+  const n=names();
+  openSheet(`<h3>やることを追加</h3>
+    <div class="field-label">内容</div><input class="input" id="f_title" placeholder="例：引越し業者を予約" style="margin-bottom:14px">
+    <div class="field-label">カテゴリ</div>
+    <select class="input" id="f_cat" style="margin-bottom:14px">${CATS.map(c=>`<option>${c}</option>`).join('')}</select>
+    <div class="field-label">担当</div>
+    <div class="seg" id="f_assign" style="margin-bottom:14px">
+      <button class="on" data-v="">未定</button>
+      <button data-v="a">${esc(n.a)}</button>
+      <button data-v="b">${esc(n.b)}</button>
+      <button data-v="both">ふたり</button>
+    </div>
+    <div class="field-label">期限（任意）</div><input class="input" id="f_due" type="date" style="margin-bottom:18px">
+    <button class="btn block" onclick="addTask()">追加する</button>`);
+  segInit('f_assign');
+}
+function segInit(id){ const s=$('#'+id); s.querySelectorAll('button').forEach(b=>b.onclick=()=>{ s.querySelectorAll('button').forEach(x=>x.classList.remove('on')); b.classList.add('on'); s.dataset.v=b.dataset.v; }); }
+async function addTask(){
+  const title=$('#f_title').value.trim(); if(!title){toast('内容を入れてね','✍️');return;}
+  await addRow('tasks',{title,category:$('#f_cat').value,assignee:$('#f_assign').dataset.v||null,due_date:$('#f_due').value||null,done:false,created_by:ME});
+  closeSheet(); render(); toast('追加したよ');
+}
+
+function openBudgetAdd(){
+  openSheet(`<h3>予算項目を追加</h3>
+    <div class="field-label">項目名</div><input class="input" id="b_name" placeholder="例：敷金・礼金" style="margin-bottom:14px">
+    <div class="grid2" style="margin-bottom:18px">
+      <div><div class="field-label">予定額</div><input class="input" id="b_plan" type="number" inputmode="numeric" placeholder="0"></div>
+      <div><div class="field-label">使った額</div><input class="input" id="b_act" type="number" inputmode="numeric" placeholder="0"></div>
+    </div>
+    <button class="btn block" onclick="addBudget()">追加する</button>`);
+}
+async function addBudget(){
+  const name=$('#b_name').value.trim(); if(!name){toast('項目名を入れてね','✍️');return;}
+  await addRow('budget_items',{name,planned:Number($('#b_plan').value||0),actual:Number($('#b_act').value||0)});
+  closeSheet(); render(); toast('追加したよ');
+}
+function openBudgetEdit(id){
+  const x=DB.budget_items.find(b=>b.id===id); if(!x)return;
+  openSheet(`<h3>${esc(x.name)}</h3>
+    <div class="grid2" style="margin-bottom:18px">
+      <div><div class="field-label">予定額</div><input class="input" id="e_plan" type="number" inputmode="numeric" value="${x.planned||0}"></div>
+      <div><div class="field-label">使った額</div><input class="input" id="e_act" type="number" inputmode="numeric" value="${x.actual||0}"></div>
+    </div>
+    <button class="btn block" onclick="saveBudget('${id}')">保存</button>
+    <button class="btn ghost block" style="margin-top:10px" onclick="delConfirm('budget_items','${id}','${esc(x.name)}')">削除</button>`);
+}
+async function saveBudget(id){
+  await updRow('budget_items',id,{planned:Number($('#e_plan').value||0),actual:Number($('#e_act').value||0)});
+  closeSheet(); render(); toast('保存したよ');
+}
+
+function openWantAdd(){
+  openSheet(`<h3>ほしい物を追加</h3>
+    <div class="field-label">品名</div><input class="input" id="w_name" placeholder="例：冷蔵庫" style="margin-bottom:14px">
+    <div class="field-label">URL（任意）</div><input class="input" id="w_url" placeholder="https://..." style="margin-bottom:14px">
+    <div class="field-label">価格（任意）</div><input class="input" id="w_price" type="number" inputmode="numeric" placeholder="0" style="margin-bottom:18px">
+    <button class="btn block" onclick="addWant()">追加する</button>`);
+}
+async function addWant(){
+  const name=$('#w_name').value.trim(); if(!name){toast('品名を入れてね','✍️');return;}
+  await addRow('wants',{name,url:$('#w_url').value.trim()||null,price:Number($('#w_price').value||0),agreed:false,bought:false,created_by:ME});
+  closeSheet(); render(); toast('追加したよ');
+}
+
+function openWishAdd(){
+  openSheet(`<h3>やりたいことを追加</h3>
+    <div class="field-label">内容</div><input class="input" id="wi_title" placeholder="例：箱根に温泉旅行" style="margin-bottom:18px">
+    <button class="btn block" onclick="addWish()">追加する</button>`);
+}
+async function addWish(){
+  const title=$('#wi_title').value.trim(); if(!title){toast('内容を入れてね','✍️');return;}
+  await addRow('wishes',{title,done:false,created_by:ME});
+  await markDaily('wish');
+  closeSheet(); render(); toast('追加したよ');
+}
+
+function openRuleAdd(){
+  openSheet(`<h3>ルールを追加</h3>
+    <div class="field-label">ルール</div><input class="input" id="r_text" placeholder="例：ゴミ出しは交代制" style="margin-bottom:18px">
+    <button class="btn block" onclick="addRule()">追加する</button>`);
+}
+async function addRule(){
+  const text=$('#r_text').value.trim(); if(!text){toast('内容を入れてね','✍️');return;}
+  await addRow('rules',{text,created_by:ME});
+  closeSheet(); render(); toast('追加したよ');
+}
+
+function openAnnivAdd(){
+  openSheet(`<h3>記念日を追加</h3>
+    <div class="field-label">タイプ</div>
+    <div class="seg" id="a_mode" style="margin-bottom:14px">
+      <button class="on" data-v="countup">経過日数（○日目）</button>
+      <button data-v="countdown">次回まで（あと○日）</button>
+    </div>
+    <div class="field-label">ラベル</div><input class="input" id="a_label" placeholder="例：付き合った日" style="margin-bottom:14px">
+    <div class="field-label">日付</div><input class="input" id="a_date" type="date" style="margin-bottom:14px">
+    <label class="row" id="a_rec_wrap" style="margin-bottom:18px;gap:8px;display:none"><input type="checkbox" id="a_rec" checked style="width:20px;height:20px"> 毎年くり返す</label>
+    <button class="btn block" onclick="addAnniv()">追加する</button>`);
+  const seg=$('#a_mode');
+  seg.querySelectorAll('button').forEach(b=>b.onclick=()=>{
+    seg.querySelectorAll('button').forEach(x=>x.classList.remove('on')); b.classList.add('on'); seg.dataset.v=b.dataset.v;
+    $('#a_rec_wrap').style.display = b.dataset.v==='countdown'?'flex':'none';
+  });
+  seg.dataset.v='countup';
+}
+async function addAnniv(){
+  const label=$('#a_label').value.trim(), date=$('#a_date').value;
+  const mode=$('#a_mode').dataset.v||'countup';
+  if(!label||!date){toast('ラベルと日付を入れてね','✍️');return;}
+  await addRow('anniversaries',{label,date,mode,recurring: mode==='countdown'?$('#a_rec').checked:false});
+  closeSheet(); render(); toast('追加したよ');
+}
+
+/* 入居日 */
+function openMoveIn(){
+  openSheet(`<h3>入居日を設定</h3>
+    <div class="field-label">引っ越し・入居の日</div>
+    <input class="input" id="mi_date" type="date" value="${DB.state.moveInDate||''}" style="margin-bottom:18px">
+    <button class="btn block" onclick="saveMoveIn()">設定する</button>
+    ${DB.state.moveInDate?`<button class="btn ghost block" style="margin-top:10px" onclick="clearMoveIn()">クリア</button>`:''}`);
+}
+async function saveMoveIn(){ const d=$('#mi_date').value; if(!d){toast('日付を選んでね','📅');return;} DB.state.moveInDate=d; await saveState(); closeSheet(); render(); toast('設定したよ','🏠'); }
+async function clearMoveIn(){ delete DB.state.moveInDate; await saveState(); closeSheet(); render(); }
+
+/* プロフィール / 自分の切替 */
+function openWhoami(){
+  const n=names();
+  const myName=ME==='a'?n.a:n.b;
+  const pet=DB.state[ME==='a'?'petA':'petB'];
+  openSheet(`<h3>プロフィール</h3>
+    <div style="text-align:center;margin-bottom:16px">
+      <div style="position:relative;display:inline-block">
+        ${avaHTML(ME,'ava-big')}
+      </div>
+      <div style="font-weight:800;margin-top:8px">${esc(myName)}</div>
+      ${pet&&pet.confirmed?`<div style="font-size:12px;color:var(--ink-soft)">あいぼう：${esc(pet.nick|| (pet.miss?(pet.name||'あいぼう'):EVO[pet.type].label))}${pet.miss?` ${stars(pet.rarity||1)}`:`（${esc(stageName(pet.type,pet.exp||0))}）`}</div>`:''}
+    </div>
+    <div class="field-label">プロフィール画像</div>
+    <input type="file" accept="image/*" id="ava_file" style="margin-bottom:8px;font-size:13px">
+    <div style="font-size:11px;color:var(--ink-soft);margin-bottom:16px">タスク完了などに、この画像が表示されるよ</div>
+    <div class="field-label">表示名を変更</div>
+    <input class="input" id="ava_name" value="${esc(myName)}" style="margin-bottom:18px">
+    <button class="btn block" onclick="saveProfile()">保存</button>
+    <button class="btn ghost block" style="margin-top:10px" onclick="switchUser()">別の人に切り替え</button>`);
+  $('#ava_file').onchange=onAvaFile;
+}
+let _pendingAva=null;
+function onAvaFile(e){
+  const f=e.target.files[0]; if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{
+    // 縮小してbase64保存（容量節約）
+    const img=new Image();
+    img.onload=()=>{
+      const cv=document.createElement('canvas'); const S=200;
+      const scale=Math.min(S/img.width,S/img.height); cv.width=img.width*scale; cv.height=img.height*scale;
+      cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);
+      _pendingAva=cv.toDataURL('image/jpeg',0.8);
+      toast('画像を読み込んだよ。保存を押してね','🖼️');
+    };
+    img.src=r.result;
+  };
+  r.readAsDataURL(f);
+}
+async function saveProfile(){
+  const name=$('#ava_name').value.trim();
+  if(name){ if(ME==='a')DB.state.nameA=name; else DB.state.nameB=name; }
+  if(_pendingAva){ if(ME==='a')DB.state.avaA=_pendingAva; else DB.state.avaB=_pendingAva; _pendingAva=null; }
+  await saveState(); closeSheet(); render(); toast('保存したよ');
+}
+function switchUser(){ ME=null; closeSheet(); showGate(); renderGate(); }
+
+/* 削除確認 */
+function delConfirm(table,id,label){
+  openSheet(`<h3>削除しますか？</h3>
+    <p style="color:var(--ink-soft);font-size:13px;margin:-8px 0 18px">「${esc(label)}」を削除します。元に戻せません。</p>
+    <button class="btn block" style="background:#d76b6b" onclick="doDel('${table}','${id}')">削除する</button>
+    <button class="btn ghost block" style="margin-top:10px" onclick="closeSheet()">やめる</button>`);
+}
+async function doDel(table,id){ await delRow(table,id); closeSheet(); render(); toast('削除したよ','🗑️'); }
+</script>
+</body>
+</html>
