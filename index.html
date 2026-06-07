@@ -113,8 +113,28 @@ input,select,textarea{font-family:inherit;font-size:16px;}
 .ci-main{flex:1;min-width:0;}
 .ci-title{font-weight:700;font-size:14px;}
 .ci-title.done{text-decoration:line-through;color:var(--ink-soft);opacity:.6;}
-.ci-meta{display:flex;align-items:center;gap:6px;margin-top:3px;flex-wrap:wrap;}
+.ci-meta{display:flex;align-items:center;gap:6px;margin-top:5px;flex-wrap:wrap;}
 .ci-meta .mini{font-size:10px;color:var(--ink-soft);}
+
+/* ---------- タスク強化：期限バッジ ---------- */
+.due-badge{font-size:10px;font-weight:800;padding:3px 8px;border-radius:20px;display:inline-flex;align-items:center;gap:3px;}
+.due-badge.over{background:#fde3e3;color:#c0392b;}      /* 期限切れ */
+.due-badge.today{background:#ffeede;color:#d35400;}     /* 今日まで */
+.due-badge.soon{background:#fff6dd;color:#b07d1c;}      /* あと数日 */
+.due-badge.far{background:#e9f3ec;color:#3f8f63;}       /* 余裕あり */
+.due-badge.done{background:var(--bg);color:var(--ink-soft);}
+
+/* ---------- タスク強化：カテゴリ見出し ---------- */
+.cat-head{display:flex;align-items:center;gap:8px;font-family:'Zen Maru Gothic';font-weight:800;font-size:14px;margin:14px 2px 8px;}
+.cat-chip{width:30px;height:30px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.cat-count{font-size:10px;font-weight:700;color:var(--ink-soft);margin-left:auto;background:var(--bg);padding:2px 9px;border-radius:20px;}
+.card.taskcard{border-left:4px solid var(--line);padding:6px 16px;}
+
+/* ---------- タスク強化：担当アイコン ---------- */
+.assignee-wrap{display:inline-flex;align-items:center;gap:-4px;}
+.assignee-wrap .ava-mini{width:20px;height:20px;border:2px solid #fff;margin-left:-6px;box-shadow:var(--shadow-sm);}
+.assignee-wrap .ava-mini:first-child{margin-left:0;}
+.assignee-none{font-size:10px;color:var(--ink-soft);background:var(--bg);padding:3px 8px;border-radius:20px;font-weight:700;}
 .del{color:#c9ccd6;font-size:18px;padding:4px 6px;flex-shrink:0;}
 
 .progress{height:10px;background:var(--bg);border-radius:10px;overflow:hidden;}
@@ -726,6 +746,51 @@ function viewHome(){
 
 /* ---------- やることチェックリスト ---------- */
 const CATS=['物件','契約','引越し','住所変更','手続き','その他'];
+// カテゴリごとの色・アイコン
+const CAT_STYLE={
+  '物件':   {emoji:'🏠', color:'#7fa8d4', bg:'#e8f0fb'},
+  '契約':   {emoji:'📝', color:'#b07de0', bg:'#f3e9fb'},
+  '引越し': {emoji:'🚚', color:'#e8a44b', bg:'#fdf1dd'},
+  '住所変更':{emoji:'📮', color:'#e8889b', bg:'#fce8ee'},
+  '手続き': {emoji:'🗂', color:'#5cb88a', bg:'#e9f3ec'},
+  'その他': {emoji:'📌', color:'#9aa3b2', bg:'#eef0f4'}
+};
+function catStyle(c){ return CAT_STYLE[c]||CAT_STYLE['その他']; }
+
+// 期限バッジ（残り日数を色分け）
+function dueBadge(t){
+  if(!t.due_date) return '';
+  const d=daysUntil(t.due_date);
+  if(t.done) return `<span class="due-badge done">📅 ${t.due_date}</span>`;
+  if(d==null) return '';
+  let cls,label;
+  if(d<0){ cls='over';  label=`${-d}日すぎ`; }
+  else if(d===0){ cls='today'; label='今日まで'; }
+  else if(d<=3){ cls='soon';  label=`あと${d}日`; }
+  else { cls='far'; label=`あと${d}日`; }
+  return `<span class="due-badge ${cls}">${cls==='over'?'⚠️':'📅'} ${label}</span>`;
+}
+
+// 担当アイコン（顔写真）。bothは2人並べる
+function assigneeIcon(a){
+  if(a==='a') return `<span class="assignee-wrap">${avaHTML('a')}</span>`;
+  if(a==='b') return `<span class="assignee-wrap">${avaHTML('b')}</span>`;
+  if(a==='both') return `<span class="assignee-wrap">${avaHTML('a')}${avaHTML('b')}</span>`;
+  return `<span class="assignee-none">担当未定</span>`;
+}
+
+// 期限順ソート：完了は下、未完は期限が近い順、期限なしはその後ろ
+function sortByDue(arr){
+  return arr.slice().sort((a,b)=>{
+    if(!!a.done!==!!b.done) return a.done?1:-1;        // 未完を上
+    const da=daysUntil(a.due_date), db=daysUntil(b.due_date);
+    if(da==null&&db==null) return 0;
+    if(da==null) return 1;                              // 期限なしは下
+    if(db==null) return -1;
+    return da-db;                                       // 近いやつが上
+  });
+}
+
 function viewTasks(){
   const cats={};
   DB.tasks.forEach(t=>{ const c=t.category||'その他'; (cats[c]=cats[c]||[]).push(t); });
@@ -733,15 +798,21 @@ function viewTasks(){
   let body='';
   order.forEach(c=>{
     if(!cats[c]) return;
-    body+=`<div class="section-title" style="font-size:14px;margin-top:8px"><span class="dot"></span>${esc(c)}</div><div class="card">`;
-    cats[c].forEach(t=>{
-      const d=daysUntil(t.due_date);
-      const due = t.due_date? `<span class="mini" style="color:${d!=null&&d<0&&!t.done?'#d76b6b':'var(--ink-soft)'}">📅 ${t.due_date}${d!=null&&d>=0&&!t.done?`（あと${d}日）`:''}</span>`:'';
+    const st=catStyle(c);
+    const list=sortByDue(cats[c]);
+    const doneN=list.filter(t=>t.done).length;
+    body+=`<div class="cat-head">
+      <span class="cat-chip" style="background:${st.bg}">${st.emoji}</span>
+      <span style="color:${st.color}">${esc(c)}</span>
+      <span class="cat-count">${doneN}/${list.length}</span>
+    </div>
+    <div class="card taskcard" style="border-left-color:${st.color}">`;
+    list.forEach(t=>{
       body+=`<div class="checkitem">
         <button class="cbox ${t.done?'on':''}" onclick="toggleTask('${t.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5"><path d="M5 12l5 5 9-9"/></svg></button>
         <div class="ci-main">
           <div class="ci-title ${t.done?'done':''}">${esc(t.title)}</div>
-          <div class="ci-meta">${assigneePill(t.assignee)}${due}</div>
+          <div class="ci-meta">${assigneeIcon(t.assignee)}${dueBadge(t)}</div>
         </div>
         <button class="del" onclick="delConfirm('tasks','${t.id}','${esc(t.title)}')">×</button>
       </div>`;
@@ -750,13 +821,6 @@ function viewTasks(){
   });
   if(!DB.tasks.length) body=`<div class="empty">右下の ＋ から<br>やることを追加しよう</div>`;
   return `<div class="section-title"><span class="dot"></span>やることリスト</div>${body}`;
-}
-function assigneePill(a){
-  const n=names();
-  if(a==='a')return `<span class="pill a">${esc(n.a)}</span>`;
-  if(a==='b')return `<span class="pill b">${esc(n.b)}</span>`;
-  if(a==='both')return `<span class="pill both">ふたり</span>`;
-  return '';
 }
 async function toggleTask(id){
   const t=DB.tasks.find(x=>String(x.id)===String(id)); if(!t)return;
