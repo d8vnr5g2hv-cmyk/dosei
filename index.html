@@ -317,12 +317,12 @@ function stageName(type,exp){ return EVO[type].stages[stageOf(type,exp)]; }
 /* 画像パス（フォールバックでSVG文字列を返すこともある） */
 function petImgTag(type,stage,size){
   // stageは1始まり
-  return `<img src="images/${type}_${stage}.png" width="${size}" alt=""
+  return `<img src="${type}_${stage}.png" width="${size}" alt=""
     style="width:${size}px;height:${size}px;object-fit:contain"
     onerror="this.onerror=null;this.outerHTML=petSVG('${type}',${Math.min(stage-1,2)},${size})">`;
 }
 function missImgTag(id,size){
-  return `<img src="images/miss_${id}.png" width="${size}" alt=""
+  return `<img src="miss_${id}.png" width="${size}" alt=""
     style="width:${size}px;height:${size}px;object-fit:contain"
     onerror="this.onerror=null;this.style.opacity=.3;this.alt='?'">`;
 }
